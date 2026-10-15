@@ -1,0 +1,93 @@
+# إعدادات المشروع - pyproject.toml
+# ════════════════════════════════════════════════════════════
+
+[project]
+name = "complaint-auto-reply"
+version = "1.0.0"
+description = "نظام MVP للرد التلقائي على شكاوى البريد الإلكتروني عبر Gmail"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [
+    { name = "فريق التطوير" }
+]
+keywords = ["gmail", "auto-reply", "complaints", "fastapi", "mvp"]
+
+dependencies = [
+    "fastapi>=0.109.0,<1.0.0",
+    "uvicorn[standard]>=0.25.0,<1.0.0",
+    "pydantic>=2.5.0,<3.0.0",
+    "pydantic-settings>=2.1.0,<3.0.0",
+    "sqlalchemy>=2.0.0,<3.0.0",
+    "psycopg2-binary>=2.9.0,<3.0.0",
+    "google-api-python-client>=2.100.0,<3.0.0",
+    "google-auth>=2.25.0,<3.0.0",
+    "google-auth-oauthlib>=1.2.0,<2.0.0",
+    "google-auth-httplib2>=0.2.0,<1.0.0",
+    "python-multipart>=0.0.6,<1.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.1.0",
+    "black>=23.0.0",
+    "mypy>=1.7.0",
+    "pytest>=7.4.0",
+    "pytest-asyncio>=0.21.0",
+    "httpx>=0.25.0",
+]
+
+[project.scripts]
+poll-once = "scripts.poll_once:main"
+
+# ─── إعدادات Ruff (المدقق والمنسّق) ───
+
+[tool.ruff]
+target-version = "py311"
+line-length = 88
+select = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # pyflakes
+    "I",      # isort
+    "B",      # flake8-bugbear
+    "C4",     # flake8-comprehensions
+    "UP",     # pyupgrade
+]
+ignore = [
+    "E501",   # line too long (handled by formatter)
+    "B008",   # function call in default argument
+]
+
+[tool.ruff.isort]
+known-first-party = ["app"]
+
+# ─── إعدادات Black (المنسّق) ───
+
+[tool.black]
+target-version = ["py311"]
+line-length = 88
+
+# ─── إعدادات MyPy (فاحص الأنواع) ───
+
+[tool.mypy]
+python_version = "3.11"
+strict = false
+warn_return_any = true
+warn_unused_ignores = true
+disallow_untyped_defs = false
+ignore_missing_imports = true
+
+# ─── إعدادات Pytest ───
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+addopts = "-v --tb=short"
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["app*", "scripts*"]

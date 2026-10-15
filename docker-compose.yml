@@ -1,0 +1,88 @@
+# ملف docker-compose لنظام الرد التلقائي على الشكاوى
+# يشمل: التطبيق + PostgreSQL + Redis (اختياري)
+
+services:
+  # ─── التطبيق الرئيسي ───
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: complaint-autoreply-app
+    ports:
+      - "8000:8000"
+    environment:
+      # قاعدة البيانات
+      - DATABASE_URL=postgresql+psycopg2://complaints:complaints_pass@db:5432/complaints_db
+      # Gmail (يجب تعبئتها من .env)
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET:-}
+      - CREDENTIALS_JSON_PATH=/app/data/credentials.json
+      - TOKEN_JSON_PATH=/app/data/token.json
+      - GMAIL_USER=${GMAIL_USER:-me}
+      # إعدادات الاستطلاع
+      - POLL_INTERVAL_SECONDS=${POLL_INTERVAL_SECONDS:-300}
+      - AUTO_REPLIED_LABEL=${AUTO_REPLIED_LABEL:-AUTO_REPLIED}
+      - MAX_REPLIES_PER_HOUR=${MAX_REPLIES_PER_HOUR:-50}
+      # السجلات
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      # Redis (اختياري)
+      - REDIS_URL=${REDIS_URL:-}
+    volumes:
+      # مجلد البيانات (credentials.json, token.json)
+      - ./data:/app/data
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - complaint-network
+
+  # ─── قاعدة البيانات PostgreSQL ───
+  db:
+    image: postgres:15-alpine
+    container_name: complaint-autoreply-db
+    environment:
+      - POSTGRES_USER=complaints
+      - POSTGRES_PASSWORD=complaints_pass
+      - POSTGRES_DB=complaints_db
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U complaints -d complaints_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - complaint-network
+
+  # ─── Redis (اختياري - للتطوير المستقبلي) ───
+  redis:
+    image: redis:7-alpine
+    container_name: complaint-autoreply-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - complaint-network
+    profiles:
+      - with-redis
+
+# ─── وحدات التخزين ───
+volumes:
+  pgdata:
+    driver: local
+  redisdata:
+    driver: local
+
+# ─── الشبكات ───
+networks:
+  complaint-network:
+    driver: bridge

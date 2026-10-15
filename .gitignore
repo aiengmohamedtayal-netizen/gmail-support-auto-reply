@@ -1,0 +1,74 @@
+# ─── البايتكود ───
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# ─── البيئات الافتراضية والملفات السرية ───
+.env
+.env.*
+!.env.example
+.venv/
+env/
+venv/
+ENV/
+
+# ─── بيانات الاعتماد (حساسة!) ───
+credentials.json
+token.json
+*.pem
+*.key
+
+# ─── قاعدة البيانات المحلية ───
+*.db
+*.sqlite
+*.sqlite3
+
+# ─── مجلد البيانات (قد يحتوي ملفات حساسة) ───
+data/
+
+# ─── السجلات ───
+*.log
+logs/
+
+# ─── IDE ───
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# ─── macOS ───
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# ─── Windows ───
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ─── Python eggs ───
+*.egg
+*.egg-info/
+dist/
+build/
+eggs/
+parts/
+var/
+sdist/
+develop-eggs/
+.installed.cfg
+
+# ─── pytest ───
+.pytest_cache/
+.coverage
+htmlcov/
+
+# ─── mypy ───
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# ─── ruff ───
+.ruff_cache/
